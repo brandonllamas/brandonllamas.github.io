@@ -5,9 +5,9 @@ excerpt: "Delivery is a quick and fun easy box where we have to create a MatterM
 date: 2021-05-22
 classes: wide
 header:
-  teaser: /assets/images/htb-writeup-delivery/delivery_logo.png
+  teaser: ../assets/images/htb-writeup-delivery/delivery_logo.png
   teaser_home_page: true
-  icon: /assets/images/hackthebox.webp
+  icon: ../assets/images/hackthebox.webp
 categories:
   - hackthebox
   - infosec
@@ -19,7 +19,7 @@ tags:
   - rules
 ---
 
-![](/assets/images/htb-writeup-delivery/delivery_logo.png)
+![](../assets/images/htb-writeup-delivery/delivery_logo.png)
 
 Delivery is a quick and fun easy box where we have to create a MatterMost account and validate it by using automatic email accounts created by the OsTicket application. The admins on this platform have very poor security practices and put plaintext credentials in MatterMost. Once we get the initial shell with the creds from MatterMost we'll poke around MySQL and get a root password bcrypt hash. Using a hint left in the MatterMost channel about the password being a variation of PleaseSubscribe!, we'll use hashcat combined with rules to crack the password then get the root shell.
 
@@ -68,59 +68,59 @@ PORT     STATE SERVICE VERSION
 
 The Delivery website is pretty basic, there's a link to a vhost called helpdesk.delivery.htb and a contact us section. We'll add this entry to our local host before proceeding further.
 
-![](/assets/images/htb-writeup-delivery/website1.png)
+![](../assets/images/htb-writeup-delivery/website1.png)
 
 The contact us section tells us we need an @delivery.htb email address and tells us port 8065 is a MatterMost server. MatterMost is a Slack-like collaboration platform that can be self-hosted.
 
-![](/assets/images/htb-writeup-delivery/website2.png)
+![](../assets/images/htb-writeup-delivery/website2.png)
 
 Browsing to port 8065 we get the MatterMost login page but we don't have credentials yet
 
-![](/assets/images/htb-writeup-delivery/mm1.png)
+![](../assets/images/htb-writeup-delivery/mm1.png)
 
 ## Helpdesk
 
 The Helpdesk page uses the OsTicket web application. It allows users to create and view the status of ticket.
 
-![](/assets/images/htb-writeup-delivery/helpdesk3.png)
+![](../assets/images/htb-writeup-delivery/helpdesk3.png)
 
 We can still open new tickets even if we only have a guest user.
 
-![](/assets/images/htb-writeup-delivery/helpdesk1.png)
+![](../assets/images/htb-writeup-delivery/helpdesk1.png)
 
 After a ticket has been created, the system generates a random @delivery.htb email account with the ticket ID.
 
-![](/assets/images/htb-writeup-delivery/helpdesk2.png)
+![](../assets/images/htb-writeup-delivery/helpdesk2.png)
 
 Now that we have an email account we can create a MatterMost account.
 
-![](/assets/images/htb-writeup-delivery/mm2.png)
+![](../assets/images/htb-writeup-delivery/mm2.png)
 
 A confirmation email is then sent to our ticket status inbox.
 
-![](/assets/images/htb-writeup-delivery/mm3.png)
+![](../assets/images/htb-writeup-delivery/mm3.png)
 
 We use the check ticket function on the OsTicket application and submit the original email address we used when creating the ticket and the ticket ID.
 
-![](/assets/images/htb-writeup-delivery/mm4.png)
+![](../assets/images/htb-writeup-delivery/mm4.png)
 
 We're now logged in and we see that the MatterMost confirmation email has been added to the ticket information.
 
-![](/assets/images/htb-writeup-delivery/mm5.png)
+![](../assets/images/htb-writeup-delivery/mm5.png)
 
 To confirm the creation of our account we'll just copy/paste the included link into a browser new tab.
 
-![](/assets/images/htb-writeup-delivery/mm6.png)
+![](../assets/images/htb-writeup-delivery/mm6.png)
 
 After logging in to MatterMost we have access to the Internal channel where we see that credentials have been posted. There's also a hint that we'll have to use a variation of the `PleaseSubscribe!` password later.
 
-![](/assets/images/htb-writeup-delivery/mm7.png)
+![](../assets/images/htb-writeup-delivery/mm7.png)
 
 ## User shell
 
 With the `maildeliverer / Youve_G0t_Mail!` credentials we can SSH in and get the user flag.
 
-![](/assets/images/htb-writeup-delivery/user.png)
+![](../assets/images/htb-writeup-delivery/user.png)
 
 ## Credentials in MySQL database
 
@@ -217,4 +217,4 @@ Hash.Name........: bcrypt $2*$, Blowfish (Unix)
 
 The root password from MatterMost is the same as the local root password so we can just su to root and get the system flag.
 
-![](/assets/images/htb-writeup-delivery/root.png)
+![](../assets/images/htb-writeup-delivery/root.png)
