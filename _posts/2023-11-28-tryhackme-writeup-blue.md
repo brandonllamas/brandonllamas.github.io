@@ -1,12 +1,8 @@
 ---
 layout: single
 title: Blue - Try Hack me
-excerpt: "En el siguiente análisis, abordaremos la resolución de la máquina "Blue" en TryHackMe. Esta máquina Windows nos proporcionará una valiosa experiencia para comprender y explotar la vulnerabilidad conocida como EternalBlue. Para llevar a cabo este proceso, comenzaremos con un escaneo utilizando la herramienta Nmap para identificar posibles puntos de entrada. Posteriormente, utilizaremos Metasploit para confirmar la presencia de la vulnerabilidad en el sistema cliente.
-
-Una vez confirmada la vulnerabilidad, nos centraremos en el proceso de dumping de los hashes NTLM para, posteriormente, realizar un ataque de fuerza bruta. Este procedimiento nos permitirá obtener acceso a las credenciales necesarias para avanzar en la explotación de la máquina.
-
-En resumen, este write-up detallará paso a paso el enfoque utilizado para identificar, confirmar y explotar la vulnerabilidad EternalBlue en la máquina Windows "Blue" de TryHackMe, incluyendo la extracción y el uso de los hashes NTLM para avanzar con éxito en la seguridad del sistema.
-."
+excerpt: "En el siguiente análisis, abordaremos la resolución de la máquina 'Blue' en TryHackMe. Esta máquina Windows nos proporcionará una valiosa experiencia para comprender y explotar la vulnerabilidad conocida como EternalBlue. Para llevar a cabo este proceso, comenzaremos con un escaneo utilizando la herramienta Nmap para identificar posibles puntos de entrada. Posteriormente, utilizaremos Metasploit para confirmar la presencia de la vulnerabilidad en el sistema cliente.
+Una vez confirmada la vulnerabilidad, nos centraremos en el proceso de dumping de los hashes NTLM para, posteriormente, realizar un ataque de fuerza bruta. Este procedimiento nos permitirá obtener acceso a las credenciales necesarias para avanzar en la explotación de la máquina."
 date: 2023-12-29
 classes: wide
 header:
@@ -15,26 +11,24 @@ header:
   icon: /assets/images/hackthebox.webp
 categories:
   - TryHackMe
-  - EternalBlue
-tags:  
   - windows
+tags:  
   - metasploit
   - tryhackme
+  - EternalBlue
 ---
 
 ![](/assets/images/tryhme-writeup-blue/Blue_card_Dark.png)
 
---------------------------
 ## Resumen 
 
-En el siguiente análisis, abordaremos la resolución de la máquina "Blue" en TryHackMe. Esta máquina Windows nos proporcionará una valiosa experiencia para comprender y explotar la vulnerabilidad conocida como EternalBlue. Para llevar a cabo este proceso, comenzaremos con un escaneo utilizando la herramienta Nmap para identificar posibles puntos de entrada. Posteriormente, utilizaremos Metasploit para confirmar la presencia de la vulnerabilidad en el sistema cliente.
+En el siguiente análisis, abordaremos la resolución de la máquina "Blue" en TryHackMe. Esta máquina Windows nos proporcionará una valiosa experiencia para comprender y explotar la vulnerabilidad conocida como [EternalBlue](/vuln-eternal-blue/). Para llevar a cabo este proceso, comenzaremos con un escaneo utilizando la herramienta Nmap para identificar posibles puntos de entrada. Posteriormente, utilizaremos Metasploit para confirmar la presencia de la vulnerabilidad en el sistema cliente.
 
 Una vez confirmada la vulnerabilidad, nos centraremos en el proceso de dumping de los hashes NTLM para, posteriormente, realizar un ataque de fuerza bruta. Este procedimiento nos permitirá obtener acceso a las credenciales necesarias para avanzar en la explotación de la máquina.
 
 En resumen, este write-up detallará paso a paso el enfoque utilizado para identificar, confirmar y explotar la vulnerabilidad EternalBlue en la máquina Windows "Blue" de TryHackMe, incluyendo la extracción y el uso de los hashes NTLM para avanzar con éxito en la seguridad del sistema.
 
 
---------------------------
 
 ## Escaneo de puertos
 
@@ -176,7 +170,6 @@ run
 ```
 ![](/assets/images/tryhme-writeup-blue/Pasted_image_20231228134222.png)
 
--------
 
 ## Explotación
 
@@ -206,7 +199,6 @@ run
 
 entonces ya obtendremos acceso al sistema 
 
----------
 
 ## Post Explotación
 

