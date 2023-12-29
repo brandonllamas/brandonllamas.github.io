@@ -108,7 +108,7 @@ también en exploit db podemos encontrar exploit para aprovechar esta vulnerabil
 
 # Maquinas para practicar
 
-- [[Blue tryhackme]]
+- [Blue tryhackme](/tryhackme-writeup-blue)
 
 
 # Solventar  Eternal Blue
